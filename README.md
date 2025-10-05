@@ -21,23 +21,6 @@ Cognito-Weave is a project designed to support people with memory and attention 
 
 ---
 
-## Project Structure
-Cognito-Weave/
-│
-├── server/ # Backend (Flask API, storage logic)
-│ ├── app.py # Main server file
-│ ├── storage.py # Data storage functions
-│ ├── requirements.txt # Python dependencies
-│ └── .env.example # Example environment variables
-│
-├── web/ # Flutter/Dart frontend (UI for patients & caregivers)
-│
-├── README.md # Project overview
-└── .gitignore # Ignored files (like .env, pycache, venv)
-
-
----
-
 ## Getting Started
 
 1. git clone https://github.com/nikitasharma768/Cognito-Weave.git
