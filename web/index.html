@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Single-page UI for patient/caregiver -->
+  <meta charset="utf-8" />
+  <title>Cognito-Weave · Patient & Caregiver</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- App styles -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- Header with mute toggle for speech output -->
+  <header class="hero">
+    <h1>Cognito-Weave</h1>
+    <p>Pick your role and continue.</p>
+    <label class="mute">
+      <input type="checkbox" id="muteToggle" />
+      Mute
+    </label>
+  </header>
+
+  <main class="container">
+
+    <!-- Role selection -->
+    <section id="roleStep" class="card">
+      <h2>Who are you?</h2>
+      <div class="row">
+        <button id="rolePatient" class="btn btn-primary">I am a Patient</button>
+        <button id="roleCaregiver" class="btn">I am a Caregiver</button>
+      </div>
+    </section>
+
+    <!-- Patient name + secret code -->
+    <section id="nameStep" class="card hidden">
+      <h2>Patient check-in</h2>
+      <label for="patientName" class="label">Name</label>
+      <input id="patientName" class="text" placeholder="Type patient name..." />
+      <div class="row">
+        <button id="nameContinue" class="btn btn-primary">Continue</button>
+        <button id="backToRole1" class="btn">Back</button>
+        <button id="changeLang" class="btn">Change language</button>
+      </div>
+      <div id="nameInfo" class="hint"></div>
+
+      <!-- Code shown once user is identified -->
+      <div id="codeBox" class="codebox hidden">
+        <div><strong>Your secret code:</strong> <span id="codeValue"></span></div>
+        <div class="hint">Share this with your caregiver so they can view your progress.</div>
+      </div>
+
+      <!-- Caregiver activity notification -->
+      <div id="patientNotice" class="notice hidden"></div>
+
+      <!-- Recent caregiver suggestions -->
+      <div id="patientSuggestions" class="card hidden" style="margin-top:10px;">
+        <h3 style="margin:0 0 6px 0;">Suggestions from caregiver</h3>
+        <ul id="suggestList" style="margin:0;padding-left:18px;"></ul>
+      </div>
+    </section>
+
+    <!-- Language selection -->
+    <section id="langStep" class="card hidden">
+      <h2>Choose your language</h2>
+      <div class="row">
+        <button class="btn btn-primary langBtn" data-lang="en">English</button>
+        <button class="btn langBtn" data-lang="hi">हिन्दी</button>
+        <button class="btn langBtn" data-lang="es">Español</button>
+        <button class="btn langBtn" data-lang="zh">中文</button>
+      </div>
+    </section>
+
+    <!-- Warm-ups before the main questions -->
+    <section id="warm1" class="card hidden">
+      <h2><span id="w1Label">Warm-up 1) How was your day?</span></h2>
+      <textarea id="w1" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="micW1" class="btn">🎤 Speak</button>
+        <button id="nextW1" class="btn btn-primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="warm2" class="card hidden">
+      <h2><span id="w2Label">Warm-up 2) What stood out today?</span></h2>
+      <textarea id="w2" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="micW2" class="btn">🎤 Speak</button>
+        <button id="nextW2" class="btn btn-primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="warm3" class="card hidden">
+      <h2><span id="w3Label">Warm-up 3) Can you tell it briefly?</span></h2>
+      <textarea id="w3" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="micW3" class="btn">🎤 Speak</button>
+        <button id="nextW3" class="btn btn-primary">Continue</button>
+      </div>
+    </section>
+
+    <!-- Three memory questions -->
+    <section id="step1" class="card hidden">
+      <h2><span id="q1Label">1) What happened?</span></h2>
+      <textarea id="ans1" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="mic1" class="btn">🎤 Speak</button>
+        <button id="next1" class="btn btn-primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="step2" class="card hidden">
+      <h2><span id="q2Label">2) Where did it happen?</span></h2>
+      <textarea id="ans2" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="mic2" class="btn">🎤 Speak</button>
+        <button id="next2" class="btn btn-primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="step3" class="card hidden">
+      <h2><span id="q3Label">3) Who was with you?</span></h2>
+      <textarea id="ans3" class="input" placeholder="Answer here…"></textarea>
+      <div class="row">
+        <button id="mic3" class="btn">🎤 Speak</button>
+        <button id="finish" class="btn btn-primary">Finish</button>
+      </div>
+    </section>
+
+    <!-- Summary and comparison charts -->
+    <section id="summaryCard" class="card hidden">
+      <h2 id="summaryTitle">Your short memory</h2>
+      <div id="summaryBox" class="summary"></div>
+
+      <!-- Appears on test sessions -->
+      <div id="progressWrap" class="hidden">
+        <h3 id="resultsTitle" style="margin-top:14px;">Memory check results</h3>
+        <div id="progressNote" class="hint"></div>
+
+        <!-- Previous test bars -->
+        <div class="card" style="margin:10px 0;">
+          <h4 id="prevTitle" style="margin:0 0 6px 0;">Previous test</h4>
+          <div class="bars">
+            <div class="bar-row">
+              <span id="labPrevWhat">What</span>
+              <div class="bar"><div id="bar1Prev" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar1PrevV">0%</span>
+            </div>
+            <div class="bar-row">
+              <span id="labPrevWhere">Where</span>
+              <div class="bar"><div id="bar2Prev" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar2PrevV">0%</span>
+            </div>
+            <div class="bar-row">
+              <span id="labPrevWho">Who</span>
+              <div class="bar"><div id="bar3Prev" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar3PrevV">0%</span>
+            </div>
+            <div class="bar-row total">
+              <span id="labPrevTotal">Total</span>
+              <div class="bar"><div id="barTPrev" class="bar-fill" style="width:0%"></div></div>
+              <span id="barTPrevV">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today bars -->
+        <div class="card" style="margin:10px 0%;">
+          <h4 id="todayTitle" style="margin:0 0 6px 0;">Today</h4>
+          <div class="bars">
+            <div class="bar-row">
+              <span id="labNowWhat">What</span>
+              <div class="bar"><div id="bar1Now" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar1NowV">0%</span>
+            </div>
+            <div class="bar-row">
+              <span id="labNowWhere">Where</span>
+              <div class="bar"><div id="bar2Now" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar2NowV">0%</span>
+            </div>
+            <div class="bar-row">
+              <span id="labNowWho">Who</span>
+              <div class="bar"><div id="bar3Now" class="bar-fill" style="width:0%"></div></div>
+              <span id="bar3NowV">0%</span>
+            </div>
+            <div class="bar-row total">
+              <span id="labNowTotal">Total</span>
+              <div class="bar"><div id="barTNow" class="bar-fill" style="width:0%"></div></div>
+              <span id="barTNowV">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delta summary text -->
+        <div id="deltaSummary" class="hint" style="font-weight:700;"></div>
+
+        <!-- Show previous record that was compared -->
+        <details id="lastReveal" style="margin-top:10px;">
+          <summary id="revealTitle">Show last record used for comparison</summary>
+          <div id="lastAnswers" class="hint" style="margin-top:6px;"></div>
+        </details>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="restart" class="btn">Start new</button>
+      </div>
+    </section>
+
+    <!-- Caregiver login -->
+    <section id="cgLogin" class="card hidden">
+      <h2>Caregiver access</h2>
+      <label class="label" for="cgName">Your name</label>
+      <input id="cgName" class="text" placeholder="Caregiver name…" />
+      <label class="label" for="cgPatientName">Patient name</label>
+      <input id="cgPatientName" class="text" placeholder="Patient name…" />
+      <label class="label" for="cgCode">Patient secret code</label>
+      <input id="cgCode" class="text" placeholder="4–6 digit code…" />
+      <div class="row">
+        <button id="cgEnter" class="btn btn-primary">Enter</button>
+        <button id="backToRole2" class="btn">Back</button>
+      </div>
+      <div id="cgInfo" class="hint"></div>
+    </section>
+
+    <!-- Caregiver dashboard -->
+    <section id="cgPanel" class="card hidden">
+      <h2>Caregiver dashboard</h2>
+      <div id="cgPatientHeader" class="hint"></div>
+
+      <div id="cgProgressWrap" class="card" style="margin:10px 0;">
+        <h3 style="margin:0 0 6px 0;">Latest Memory Tests</h3>
+        <div id="cgNote" class="hint"></div>
+
+        <!-- Simple 2-bar comparison for caregiver -->
+        <div class="bars">
+          <div class="bar-row">
+            <span>Prev Test Total</span>
+            <div class="bar"><div id="cgPrevT" class="bar-fill" style="width:0%"></div></div>
+            <span id="cgPrevTv">0%</span>
+          </div>
+          <div class="bar-row">
+            <span>Latest Test Total</span>
+            <div class="bar"><div id="cgNowT" class="bar-fill" style="width:0%"></div></div>
+            <span id="cgNowTv">0%</span>
+          </div>
+        </div>
+
+        <div id="cgDelta" class="hint" style="font-weight:700;margin-top:8px;"></div>
+      </div>
+
+      <!-- Caregiver suggestion input -->
+      <div class="card" style="margin:10px 0;">
+        <h3 style="margin:0 0 6px 0;">Leave a suggestion</h3>
+        <textarea id="cgSuggest" class="input" placeholder="Keep it short and kind…"></textarea>
+        <div class="row">
+          <button id="cgSend" class="btn btn-primary">Send to patient</button>
+        </div>
+        <div id="cgSendInfo" class="hint"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App logic -->
+  <script src="./story_step.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+name = "cognito-gemini-proxy"
+main = "worker.js"
+compatibility_date = "2024-10-01"
+
+[vars]
+GEMINI_MODEL = "gemini-1.5-flash"
