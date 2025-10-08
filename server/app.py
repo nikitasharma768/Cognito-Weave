@@ -1,20 +1,20 @@
-from flask import Flask, send_from_directory
-from flask_cors import CORS
 import os
+from flask import Flask, send_from_directory
 
 app = Flask(__name__, static_folder="web", static_url_path="")
-CORS(app)  # optional, safe to keep
+
+@app.route("/healthz")
+def healthz():
+    return {"status": "ok"}
 
 @app.route("/")
-def root():
+def index():
     return send_from_directory(app.static_folder, "index.html")
 
-# if your SPA uses client-side routing, route everything back to index.html
 @app.route("/<path:path>")
-def catch_all(path):
-    # serve static files if they exist, else index.html
-    full = os.path.join(app.static_folder, path)
-    if os.path.isfile(full):
+def static_or_index(path):
+    full_path = os.path.join(app.static_folder, path)
+    if os.path.isfile(full_path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, "index.html")
 
